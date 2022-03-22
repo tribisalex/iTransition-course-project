@@ -1,0 +1,25 @@
+export const ADD_REVIEW = 'ADD_REVIEW';
+export const GET_REVIEW = 'GET_REVIEW';
+export const GET_REVIEWS = 'GET_REVIEWS';
+export const DELETE_REVIEW = 'DELETE_REVIEW';
+export const EDIT_REVIEW = 'EDIT_REVIEW';
+export const SET_REVIEW_ID = 'SET_REVIEW_ID';
+export const SAVE_REVIEW = 'SAVE_REVIEW';
+export const CREATE_CATEGORY_SUCCESS = 'CREATE_CATEGORY_SUCCESS';
+export const CREATE_CATEGORY_ERROR = 'CREATE_CATEGORY_SUCCESS';
+export const DELETE_CATEGORY = 'DELETE_CATEGORY';
+export const EDIT_CATEGORY = 'EDIT_CATEGORY';
+export const GET_CATEGORIES = 'GET_CATEGORIES';
+export const ADD_CATEGORY = 'ADD_CATEGORY';
+export const SORT_CATEGORY = 'SORT_CATEGORY';
+export const GET_USERS = 'GET_USERS';
+export const GET_USER = 'GET_USER';
+export const ADD_USER = 'ADD_USER';
+export const EDIT_USER = 'EDIT_USER';
+export const DELETE_USER = 'DELETE_USER';
+export const SET_USER_LOCALE = 'SET_USER_LOCALE';
+export const SET_CURRENT_LOCALE = 'SET_CURRENT_LOCALE';
+export const SET_USER_THEME = 'SET_USER_THEME';
+export const GET_TAGS = 'GET_TAGS';
+export const ADD_TAG = 'ADD_TAG';
+
