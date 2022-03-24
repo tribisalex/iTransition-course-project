@@ -7,15 +7,14 @@ import {useNavigate} from "react-router-dom";
 import {db} from '../firebase';
 import {addDoc, collection, doc, getDoc, getDocs, orderBy, query, serverTimestamp, updateDoc} from "firebase/firestore";
 import {getDownloadURL, getStorage, ref, uploadBytesResumable} from "firebase/storage";
-import {Radio, RadioGroup} from 'react-radio-group'
 import {addReview, editReview, setReview, setReviewId} from '../store/state/reviews/actions'
 import {useDispatch, useSelector} from "react-redux";
-import {addCategory, setCategories} from "../store/state/category/actions";
+import {setCategories} from "../store/state/category/actions";
 import {FormattedMessage} from "react-intl";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {CKEditor} from "@ckeditor/ckeditor5-react";
 import {MultiSelect} from "react-multi-select-component";
-import {addTag, setTags} from "../store/state/tags/actions";
+import {addTag, setTagCount, setTags} from "../store/state/tags/actions";
 
 const AddReviewPage1 = () => {
   const navigate = useNavigate();
@@ -27,6 +26,7 @@ const AddReviewPage1 = () => {
   const [name, setName] = useState('');
   const [drag, setDrag] = useState(false);
   const [tagsInput, setTagInput] = useState('');
+  const [newTagName, setNewTagName] = useState('');
   const [image, setImage] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -38,6 +38,7 @@ const AddReviewPage1 = () => {
   const auth = getAuth();
   const user = auth.currentUser;
   const reviewsCollectionRef = collection(db, "reviews");
+  const tagsCollectionRef = collection(db, "tags");
   const categoriesCollectionRef = collection(db, 'categories');
   const q = query(categoriesCollectionRef, orderBy('categoryname', 'asc'));
 
@@ -49,28 +50,35 @@ const AddReviewPage1 = () => {
     getCategories();
   }, []);
 
-
-  const tagsCollectionRef = collection(db, "tags");
   useEffect(() => {
     const getTags = async () => {
       const data = await getDocs(tagsCollectionRef);
-      dispatch (setTags(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
+      dispatch(setTags(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
     };
     getTags();
   }, []);
 
   const handleAddTags = async () => {
     const tag = await addDoc(tagsCollectionRef, {
-      label: tagsInput,
-      value: tagsInput,
+      label: newTagName,
+      value: newTagName,
+      count: 0,
     });
-    dispatch(addTag({id: tag.id, label: tagsInput, value: tagsInput}));
-    setTagInput('');
+    dispatch(addTag({
+      id: tag.id,
+      label: newTagName,
+      value: newTagName,
+      count: 0
+    }));
+    setNewTagName('');
   };
 
-
-
-
+  const handleEditTagAddCount = async (id, count) => {
+    const tagDoc = doc(db, "tags", id);
+    const newFields = { count: count + 1 };
+    await updateDoc(tagDoc, newFields);
+    dispatch(setTagCount(id, newFields));
+  };
 
   useEffect(() => {
     const docRef = doc(db, "reviews", reviewId ? reviewId : '1');
@@ -99,7 +107,7 @@ const AddReviewPage1 = () => {
       setRating('')
       setDownloadUrl('')
     }
-},[]);
+  }, []);
 
 
   const handleAddReview = async () => {
@@ -123,10 +131,12 @@ const AddReviewPage1 = () => {
       rating: rating,
       createdAt: serverTimestamp()
     }));
+    selected.map((select) => handleEditTagAddCount(select.id, select.count));
     navigate(MYPAGE_ROUTE);
   };
 
   const handleEditReview = async (id, name, tags, imageurl, category, reviewText, rating) => {
+    const oldSelected = selected;
     const reviewDoc = doc(db, 'reviews', id)
     await updateDoc(reviewDoc, {
       reviewname: name,
@@ -146,17 +156,7 @@ const AddReviewPage1 = () => {
     setReviewText(data);
   }
 
-  const options = [
-    // { label: "Grapes 🍇", value: "grapes" },
-    // { label: "Mango 🥭", value: "mango" },
-    // { label: "Strawberry 🍓", value: "strawberry"},
-  ];
-
-  options.push()
-
-
-
-    const storage = getStorage();
+  const storage = getStorage();
   const metadata = {
     contentType: 'image/jpeg'
   };
@@ -214,6 +214,7 @@ const AddReviewPage1 = () => {
 
   const ratingItems = [1, 2, 3, 4, 5]
 
+
   return (
     <Container className='mt-2 d-flex flex-column justify-content-center align-items-center'
                style={{width: '100%'}}>
@@ -236,7 +237,8 @@ const AddReviewPage1 = () => {
                      onDragOver={e => dragStartHandler(e)}
               >
                 <div className='d-flex flex-column justify-content-center align-items-center'>
-                  <label htmlFor="file-input" style={{fontWeight: 'bold', cursor: 'pointer'}}><FormattedMessage id='select_a_file'/></label>
+                  <label htmlFor="file-input" style={{fontWeight: 'bold', cursor: 'pointer'}}><FormattedMessage
+                    id='select_a_file'/></label>
                   <span><FormattedMessage id='drag_it'/></span>
                   <input type='file'
                          onChange={handleChange}
@@ -252,10 +254,11 @@ const AddReviewPage1 = () => {
                     }
                     {
                       downloadUrl
-                      ? <img src={downloadUrl} style={{width: 25}} />
-                      : null
+                        ? <img src={downloadUrl} style={{width: 25}}/>
+                        : null
                     }
-                    <Button disabled={isUploading} className='m-2 p-1' onClick={handleUpload}><FormattedMessage id='upload'/></Button>
+                    <Button disabled={isUploading} className='m-2 p-1' onClick={handleUpload}><FormattedMessage
+                      id='upload'/></Button>
                   </div>
                 </div>
               </div>
@@ -269,29 +272,27 @@ const AddReviewPage1 = () => {
               onChange={(e) => setName(e.target.value)}
             />
           </FloatingLabel>
-
-          <FloatingLabel controlId="floatingInput" label="New tag">
-            <Form.Control
-              placeholder='New tag'
-              value={tagsInput}
-              onChange={(e) => setTagInput(e.target.value)}
-            />
-          </FloatingLabel>
-
-          <Button variant={"outline-primary"}
-                  className='m-2'
-                  onClick={handleAddTags}>Add tag</Button>
-
+          <div className='d-flex mt-2 mb-2' style={{width: '100%'}}>
+            <FloatingLabel style={{width: '85%'}} controlId="floatingInput" label="New tag">
+              <Form.Control
+                placeholder='New tag'
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+              />
+            </FloatingLabel>
+            <Button variant={"outline-primary"}
+                    className='m-2'
+                    onClick={handleAddTags}>Add tag</Button>
+          </div>
           <div>
             <FloatingLabel>Select tags</FloatingLabel>
             <MultiSelect
               options={tags}
               value={selected}
               onChange={setSelected}
-              labelledBy="Select category"
+              labelledBy="Select tags"
             />
           </div>
-
 
 
           <Form.Select className='mt-2'
@@ -318,37 +319,21 @@ const AddReviewPage1 = () => {
             })}
           </Form.Select>
 
-          {/*<div>Author's rating</div>*/}
-          {/*<RadioGroup className='d-flex align-items-center' name="Rating" onChange={(e) => setRating(e)} value={rating}>*/}
-          {/*  {ratingItems.map((ratingItem, key) => {*/}
-          {/*    return (*/}
-          {/*      <div key={key} className="m-2 d-flex flex-column align-items-center">*/}
-          {/*        <Radio value={ratingItem}/>{ratingItem}*/}
-          {/*      </div>*/}
-          {/*    )*/}
-          {/*  })}*/}
-          {/*</RadioGroup>*/}
-
-          {/*<FloatingLabel controlId="floatingTextarea" label="Text review" className="mb-2">*/}
-          {/*  <Form.Control*/}
-          {/*    as="textarea"*/}
-          {/*    placeholder="Leave a comment here"*/}
-          {/*    style={{height: '110px'}}*/}
-          {/*    value={reviewText}*/}
-          {/*    onChange={e => setReviewText(e.target.value)}*/}
-          {/*  />*/}
-          {/*</FloatingLabel>*/}
-
           <CKEditor
             editor={ClassicEditor}
-            onInit={ editor => {
+            onInit={editor => {
             }}
             value={reviewText}
             onChange={handleCkeditorChange}
           />
 
           <Button variant={"outline-primary"} className='mt-2'
-                  onClick={reviewId ? () => handleEditReview(reviewId, name, tagsInput, downloadUrl, category, reviewText, rating) : handleAddReview}>{reviewId ? <FormattedMessage id='edit_review'/> : <FormattedMessage id='add_review'/>}</Button>
+                  onClick={reviewId
+                    ? () => handleEditReview(reviewId, name, tagsInput, downloadUrl, category, reviewText, rating)
+                    : () => handleAddReview()}>
+            {reviewId
+              ?<FormattedMessage id='edit_review'/>
+              : <FormattedMessage id='add_review'/>}</Button>
         </Form>
       </Card>
     </Container>

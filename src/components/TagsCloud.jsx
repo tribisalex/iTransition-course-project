@@ -1,22 +1,36 @@
-import React from 'react';
-import { TagCloud } from 'react-tagcloud'
+import React, {useEffect} from 'react';
+import {TagCloud} from 'react-tagcloud'
+import {collection, getDocs} from "firebase/firestore";
+import {db} from "../firebase";
+import {useDispatch, useSelector} from "react-redux";
+import {setTags} from "../store/state/tags/actions";
 
-const data = [
-    { value: 'JavaScript', count: 38 },
-    { value: 'React', count: 30 },
-    { value: 'Nodejs', count: 28 },
-    { value: 'Express.js', count: 25 },
-    { value: 'HTML5', count: 28 },
-    { value: 'MongoDB', count: 18 },
-    { value: 'CSS3', count: 20 },
-  ]
+const TagsCloud = () => {
+  const tagsCollectionRef = collection(db, "tags");
+  const tags = useSelector(state => state.tags.tags)
 
-const TagsCloud = () => (
-    <TagCloud
-      minSize={14}
-      maxSize={35}
-      tags={data}
-      onClick={tag => alert(`'${tag.value}' was selected!`)}
-    />
-  )
+  const dataTags = [];
+  tags.map((tag) => {
+    dataTags.push({value: tag.value, count: tag.count})
+  })
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const getTags = async () => {
+      const data = await getDocs(tagsCollectionRef);
+      dispatch(setTags(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
+    };
+    getTags();
+  }, []);
+
+return (
+  <TagCloud
+    minSize={14}
+    maxSize={35}
+    tags={dataTags}
+    onClick={tag => alert(`'${tag.value}' was selected!`)}
+  />
+)
+}
 export default TagsCloud;

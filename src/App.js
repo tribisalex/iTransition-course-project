@@ -14,13 +14,18 @@ import {setCategories} from "./store/state/category/actions";
 
 function App() {
   // const [currentLocale, setCurrentLocale] = useState(getInitialLocale());
+  const [isAuth, setIsAuth] = useState(detInitialIsAuth());
   const dispatch = useDispatch();
   const currentLocale = useSelector(state => state.userMy.currentLocale);
-  console.log('App: ', currentLocale);
   // function getInitialLocale() {
   //   const savedLocale = localStorage.getItem('locale')
   //   return savedLocale || LOCALES.ENGLISH
   // }
+
+  function detInitialIsAuth () {
+    const savedIsAuth = localStorage.getItem('isAuth');
+    return savedIsAuth || false
+  }
 
   const handleChangeCurrentLocale = ({ target: { value } }) => {
     // setCurrentLocale(value);

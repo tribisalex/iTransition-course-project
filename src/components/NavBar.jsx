@@ -21,15 +21,12 @@ const NavBar = ({ currentLocale, handleChangeCurrentLocale }) => {
   const {user} = useSelector(state => state.userMy.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [isLangRu, setIsLangRu] = useState(false);
 
-  const changeLang = () => {
-    isLangRu ? setIsLangRu(false) : setIsLangRu(true);
-  }
 
   const signOut = () => {
-    dispatch(removeUser())
-    navigate(HOMEPAGE_ROUTE)
+    dispatch(removeUser());
+
+    navigate(HOMEPAGE_ROUTE);
   }
 
   return (
@@ -53,11 +50,6 @@ const NavBar = ({ currentLocale, handleChangeCurrentLocale }) => {
               ))}
             </Form.Select>
             </Form>
-
-            {/*{isLangRu*/}
-            {/*  ? <Button variant={'outline-light'} className='ms-2' onClick={changeLang}>Ru</Button>*/}
-            {/*  : <Button variant={'outline-light'} className='ms-2' onClick={changeLang}>En</Button>*/}
-            {/*}*/}
         </div>
 
         </Nav>

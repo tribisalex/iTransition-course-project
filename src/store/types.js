@@ -1,10 +1,12 @@
 export const ADD_REVIEW = 'ADD_REVIEW';
 export const GET_REVIEW = 'GET_REVIEW';
 export const GET_REVIEWS = 'GET_REVIEWS';
+export const GET_REVIEWS_POPULAR = 'GET_REVIEWS_POPULAR';
 export const DELETE_REVIEW = 'DELETE_REVIEW';
 export const EDIT_REVIEW = 'EDIT_REVIEW';
 export const SET_REVIEW_ID = 'SET_REVIEW_ID';
-export const SAVE_REVIEW = 'SAVE_REVIEW';
+export const SORT_REVIEW = 'SORT_REVIEW';
+export const SET_CATEGORY_NAME = 'SET_CATEGORY_NAME';
 export const CREATE_CATEGORY_SUCCESS = 'CREATE_CATEGORY_SUCCESS';
 export const CREATE_CATEGORY_ERROR = 'CREATE_CATEGORY_SUCCESS';
 export const DELETE_CATEGORY = 'DELETE_CATEGORY';
@@ -22,4 +24,5 @@ export const SET_CURRENT_LOCALE = 'SET_CURRENT_LOCALE';
 export const SET_USER_THEME = 'SET_USER_THEME';
 export const GET_TAGS = 'GET_TAGS';
 export const ADD_TAG = 'ADD_TAG';
+export const SET_TAG_COUNT = 'SET_TAG_COUNT';
 

@@ -4,7 +4,7 @@ import {collection, getDocs, orderBy, query} from "firebase/firestore";
 import {db} from "../firebase";
 import {Link} from "react-router-dom";
 
-const CategoryReviews = () => {
+const CategoryReviews = ({handleClickCategory}) => {
   const [categories, setCategories] = useState([]);
   const categoriesCollectionRef = collection(db, 'categories');
   const q = query(categoriesCollectionRef, orderBy('categoryname', 'asc'));
@@ -24,7 +24,7 @@ const CategoryReviews = () => {
           {categories.map((category, key) => {
             const categoryName = category.categoryname;
             return (
-              <div key={key} style={{cursor: 'pointer', fontWeight: 'bold'}}>&bull; {category.categoryname} &bull;</div>
+              <div key={key} style={{cursor: 'pointer', fontWeight: 'bold'}} onClick={() => handleClickCategory(category.categoryname)}>{category.categoryname}</div>
             );
           })
           }

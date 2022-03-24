@@ -2,7 +2,7 @@ import {
   ADD_CATEGORY, ADD_TAG,
   DELETE_CATEGORY,
   EDIT_CATEGORY,
-  GET_CATEGORIES, GET_TAGS, SORT_CATEGORY
+  GET_CATEGORIES, GET_TAGS, SET_TAG_COUNT, SORT_CATEGORY
 } from "../../types";
 
 const initState = {
@@ -22,6 +22,10 @@ const tagReducer = (state = initState, action) => {
         ...state.tags,
           action.tag
         ]}
+
+
+    case SET_TAG_COUNT:
+      return {...state, tags: state.tags.map((tag) => tag.id === action.id ? {...tag, count: action.count} : tag) }
 
     case SORT_CATEGORY:
       return {...state, sortBy: action.sortBy, sortOrder: action.sortOrder}

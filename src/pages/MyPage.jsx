@@ -7,22 +7,28 @@ import {useNavigate} from "react-router-dom";
 import {ADDREVIEWPAGE_ROUTE, CATEGORIES_ROUTE, REVIEW_ROUTE} from "../utils/const";
 import Table from "react-bootstrap/Table";
 import {getAuth} from "firebase/auth";
-import {collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, where} from "firebase/firestore";
+import {collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, updateDoc, where} from "firebase/firestore";
 import {db} from "../firebase";
 import {useDispatch, useSelector} from "react-redux";
-import {deleteReview, setReview, setReviewId, setReviews} from "../store/state/reviews/actions";
+import {deleteReview, setReview, setReviewId, setReviews, sortReviews} from "../store/state/reviews/actions";
 import {FormattedMessage} from 'react-intl'
+import {setTagCount, setTags} from "../store/state/tags/actions";
+import {sortCategory} from "../store/state/category/actions";
 
 const MyPage = () => {
   const navigate = useNavigate();
   const auth = getAuth();
   const dispatch = useDispatch();
-  const reviews = useSelector(state => state.review.reviews)
+  const reviews = useSelector(state => state.review.reviews);
   const userId = auth.currentUser.uid;
   const reviewId = useSelector(state => state.review.reviewId)
-
   const reviewsCollectionRef = collection(db, 'reviews');
-  const q = query(reviewsCollectionRef, where('userid', "==", userId), orderBy('createdAt', 'desc'));
+  const tagsCollectionRef = collection(db, 'tags');
+  const tags = useSelector(state => state.tags.tags);
+  const sortBy = useSelector(state => state.review.sortBy)
+  const sortOrder = useSelector(state => state.review.sortOrder)
+
+  const q = query(reviewsCollectionRef, where('userid', "==", userId), orderBy(sortBy, sortOrder));
 
   useEffect(() => {
     const getReviews = async () => {
@@ -30,7 +36,17 @@ const MyPage = () => {
         dispatch(setReviews(data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))));
     };
     getReviews();
-  }, []);
+  }, [sortBy, sortOrder]);
+
+  // useEffect(() => {
+  //   const getTags = async () => {
+  //     const data = await getDocs(tagsCollectionRef);
+  //     dispatch(setTags(data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))));
+  //   };
+  //   getTags();
+  // }, []);
+
+  console.log(tags);
 
   useEffect(() => {
     const docRef = doc(db, "reviews", reviewId ? reviewId : '1');
@@ -60,6 +76,14 @@ const MyPage = () => {
     const reviewDoc = doc(db, 'reviews', id);
     await deleteDoc(reviewDoc);
     dispatch(deleteReview(id));
+    tags.map((tag) => handleEditTagRemoveCount(tag.id, tag.count));
+  };
+
+  const handleEditTagRemoveCount = async (id, count) => {
+    const tagDoc = doc(db, "tags", id);
+    const newFields = { count: count - 1 };
+    await updateDoc(tagDoc, newFields);
+    dispatch(setTagCount(id, newFields));
   };
 
   const handleChangeReviewId = async (id) => {
@@ -75,6 +99,14 @@ const MyPage = () => {
   const changeAddReviewPage = () => {
     dispatch(setReviewId(''));
     navigate(ADDREVIEWPAGE_ROUTE);
+  }
+
+  const handleSortBy = (newSortBy) => {
+    if (sortBy === newSortBy) {
+      dispatch(sortReviews(sortBy, sortOrder === 'asc' ? 'desc' : 'asc'));
+    } else {
+      dispatch(sortReviews(newSortBy, 'asc'));
+    }
   }
 
   return (
@@ -94,9 +126,9 @@ const MyPage = () => {
         <Table responsive="md" hover style={{textAlign: 'center'}}>
           <thead>
           <tr>
-            <th><FormattedMessage id='name_review'/></th>
-            <th><FormattedMessage id='date'/></th>
-            <th><FormattedMessage id='category'/></th>
+            <th style={{cursor: 'pointer'}} onClick={() => handleSortBy('reviewname')}><FormattedMessage id='name_review'/></th>
+            <th style={{cursor: 'pointer'}} onClick={() => handleSortBy('createdAt')}><FormattedMessage id='date'/></th>
+            <th style={{cursor: 'pointer'}} onClick={() => handleSortBy('category')}><FormattedMessage id='category'/></th>
             <th><FormattedMessage id='edit'/></th>
             <th><FormattedMessage id='del'/></th>
             <th><FormattedMessage id='View'/></th>

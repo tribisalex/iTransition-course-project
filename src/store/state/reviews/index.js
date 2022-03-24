@@ -1,11 +1,22 @@
-import {ADD_REVIEW, DELETE_REVIEW, EDIT_REVIEW, GET_REVIEW, GET_REVIEWS, SAVE_REVIEW, SET_REVIEW_ID} from '../../types';
+import {
+  ADD_REVIEW,
+  DELETE_REVIEW,
+  EDIT_REVIEW,
+  GET_REVIEW,
+  GET_REVIEWS, GET_REVIEWS_POPULAR,
+  SET_CATEGORY_NAME,
+  SET_REVIEW_ID,
+  SORT_REVIEW
+} from '../../types';
 
 const initialState = {
   reviews: [],
+  reviewsPopular: [],
   review: [],
   sortBy: 'createdAt',
   sortOrder: 'desc',
   reviewId: '',
+  categoryName: '%',
 };
 
 const reviewReducer = (state = initialState, action) => {
@@ -17,6 +28,9 @@ const reviewReducer = (state = initialState, action) => {
 
     case GET_REVIEW:
       return {...state, review: action.review}
+
+    case GET_REVIEWS_POPULAR:
+      return {...state, reviewsPopular: action.reviewsPopular}
 
     case ADD_REVIEW:
       return {
@@ -44,10 +58,16 @@ const reviewReducer = (state = initialState, action) => {
     case SET_REVIEW_ID:
       return {...state, reviewId: action.reviewId}
 
+    case SET_CATEGORY_NAME:
+      return {...state, categoryName: action.categoryName}
+
     case DELETE_REVIEW: {
       return {...state, reviews: state.reviews.filter((review) => review.id !== action.id)
       }
     }
+
+    case SORT_REVIEW:
+      return {...state, sortBy: action.sortBy, sortOrder: action.sortOrder}
 
     default:
       return state;

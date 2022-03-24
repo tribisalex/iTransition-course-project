@@ -24,6 +24,7 @@ const LoginPage = ({currentLocale}) => {
       }));
       navigate(HOMEPAGE_ROUTE);
       dispatch(setUserMy({user}))
+      localStorage.setItem('isAuth', true);
     })
     .catch(() => alert('Invalid user'))
   }

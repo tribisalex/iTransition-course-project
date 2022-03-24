@@ -3,7 +3,6 @@ import {Col, Container, Row} from "react-bootstrap";
 import SideBar from "../components/SideBar";
 import { useSelector} from "react-redux";
 
-
 const ReviewPage = () => {
   const review = useSelector(state => state.review.review);
 
@@ -31,11 +30,23 @@ const ReviewPage = () => {
                 <Col className='d-flex justify-content-center align-items-center'>
                   <img src={review.imageurl} alt='review' style={{width: 300}}/>
                 </Col>
-                <Col>
-                  <div>Date: {formattedTime}</div>
-                  <div>Category: {review.category}</div>
-                  <div className='d-flex'>TagS: {tags}</div>
-                  <div>Author rating: {review.rating}</div>
+                <Col className='d-flex flex-column justify-content-center' style={{fontWeight: 'bold', fontSize: 20}}>
+                  <div className='d-flex' style={{width: '100%'}}>
+                    <div className='d-flex justify-content-start mb-2' style={{width: '40%'}}>Date of creation:</div>
+                    <div className='d-flex justify-content-start mb-2' style={{width: '60%'}}>{formattedTime}</div>
+                  </div>
+                  <div className='d-flex' style={{width: '100%'}}>
+                    <div className='d-flex justify-content-start mb-2' style={{width: '40%'}}>Category:</div>
+                    <div className='d-flex justify-content-start mb-2' style={{width: '60%'}}>{review.category}</div>
+                  </div>
+                  <div className='d-flex' style={{width: '100%'}}>
+                    <div className='d-flex justify-content-start mb-2' style={{width: '40%'}}>TagS:</div>
+                    <div className='d-flex justify-content-start mb-2' style={{width: '60%'}}>{tags}</div>
+                  </div>
+                  <div className='d-flex' style={{width: '100%'}}>
+                    <div className='d-flex justify-content-start mb-2' style={{width: '40%'}}>Author rating:</div>
+                    <div className='d-flex justify-content-start mb-2' style={{width: '60%'}}>{review.rating}</div>
+                  </div>
                 </Col>
               </Row>
               <Row className='mt-2 mb-2' style={{textAlign: "justify"}}>
@@ -45,7 +56,7 @@ const ReviewPage = () => {
               </Row>
             </Col>
             <Col md={3}>
-              <SideBar/>
+              123
             </Col>
           </Row>
     </Container>
