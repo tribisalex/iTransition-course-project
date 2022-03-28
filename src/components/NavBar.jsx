@@ -7,7 +7,7 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import {useAuth} from "../hooks/use-auth";
 import {HOMEPAGE_ROUTE, LOGIN_ROUTE, MYPAGE_ROUTE} from "../utils/const";
 import {removeUser} from "../store/slices/userSlice";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {LOCALES} from '../i18n/locales'
 import {FormattedMessage} from "react-intl";
 import {getAuth} from "firebase/auth";
@@ -18,7 +18,7 @@ const NavBar = ({currentLocale, handleChangeCurrentLocale}) => {
     {name: 'Рус', code: LOCALES.RUSSIAN}
   ];
   const {isAuth, email} = useAuth();
-  // const {user} = useSelector(state => state.userMy.user);
+  const { userMy } = useSelector(state => state.userMy.user);
   // console.log(user);
   const auth = getAuth();
   const user = auth.currentUser;

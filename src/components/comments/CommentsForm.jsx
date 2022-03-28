@@ -27,6 +27,7 @@ const CommentsForm = () => {
       commentText: commentText,
       userId: user.uid,
       userName: user.displayName,
+      userEmail: user.email,
       reviewId: reviewId,
       createdAt: serverTimestamp()}));
     setCommentText('')

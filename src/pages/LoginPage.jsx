@@ -23,7 +23,7 @@ const LoginPage = ({currentLocale}) => {
         token: user.accesstoken,
       }));
       navigate(HOMEPAGE_ROUTE);
-      dispatch(setUserMy({user, role: user.role}))
+      dispatch(setUserMy({user}));
       localStorage.setItem('isAuth', true);
     })
     .catch(() => alert('Invalid user'))

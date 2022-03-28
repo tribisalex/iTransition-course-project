@@ -49,7 +49,6 @@ const HomePage = () => {
     if (docSnap.exists()) {
       dispatch(setReview(docSnap.data()));
       dispatch(setReviewId(id));
-      console.log(reviewId);
     } else {
       console.log("No such document!");
     }
