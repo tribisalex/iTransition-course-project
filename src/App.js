@@ -6,31 +6,37 @@ import Footer from "./components/Footer";
 import { IntlProvider } from 'react-intl';
 import { LOCALES } from '../src/i18n/locales'
 import { messages } from '../src/i18n/messages'
-import {useEffect, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {setCurrentLocale} from "./store/state/users/actions";
-import {getDocs} from "firebase/firestore";
-import {setCategories} from "./store/state/category/actions";
+import {useState} from "react";
+import {useDispatch} from "react-redux";
+import {setCurrentLocaleState} from "./store/state/users/actions";
 
 function App() {
-  // const [currentLocale, setCurrentLocale] = useState(getInitialLocale());
+  const [currentLocale, setCurrentLocale] = useState(getInitialLocale());
   const [isAuth, setIsAuth] = useState(detInitialIsAuth());
   const dispatch = useDispatch();
-  const currentLocale = useSelector(state => state.userMy.currentLocale);
-  // function getInitialLocale() {
-  //   const savedLocale = localStorage.getItem('locale')
-  //   return savedLocale || LOCALES.ENGLISH
-  // }
+  // const currentLocale = useSelector(state => state.userMy.currentLocale);
+
+  function getInitialLocale() {
+    const savedLocale = localStorage.getItem('locale');
+    return savedLocale || LOCALES.ENGLISH;
+  }
 
   function detInitialIsAuth () {
     const savedIsAuth = localStorage.getItem('isAuth');
     return savedIsAuth || false
   }
 
-  const handleChangeCurrentLocale = ({ target: { value } }) => {
+  const handleTakeUser = ({ target: { value } }) => {
     // setCurrentLocale(value);
     localStorage.setItem('locale', value);
-    dispatch(setCurrentLocale(value));
+    setCurrentLocale(value);
+    dispatch(setCurrentLocaleState(value));
+  }
+
+  const handleChangeCurrentLocale = ({ target: { value } }) => {
+    localStorage.setItem('locale', value);
+    setCurrentLocale(value);
+    dispatch(setCurrentLocaleState(value));
   }
 
   return (

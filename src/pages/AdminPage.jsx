@@ -6,35 +6,46 @@ import viewing from '../assets/img/viewing.png';
 import {useNavigate} from "react-router-dom";
 import {ADDREVIEWPAGE_ROUTE, CATEGORIES_ROUTE, REVIEW_ROUTE} from "../utils/const";
 import Table from "react-bootstrap/Table";
-import {getAuth} from "firebase/auth";
+import {getAuth, deleteUser} from "firebase/auth";
 import {collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, updateDoc, where} from "firebase/firestore";
 import {db} from "../firebase";
 import {useDispatch, useSelector} from "react-redux";
 import {deleteReview, setReview, setReviewId, setReviews, sortReviews} from "../store/state/reviews/actions";
-import {FormattedMessage} from 'react-intl'
-import {setTagCount} from "../store/state/tags/actions";
+import {FormattedMessage} from 'react-intl';
+import {setTagCount, setTags} from "../store/state/tags/actions";
+import {setUsers} from "../store/state/users/actions";
 
-const MyPage = () => {
-  const navigate = useNavigate();
+const AdminPage = () => {
   const auth = getAuth();
+  const user = auth.currentUser;
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const reviews = useSelector(state => state.review.reviews);
   const userId = auth.currentUser.uid;
   const reviewId = useSelector(state => state.review.reviewId)
-  const reviewsCollectionRef = collection(db, 'reviews');
+  const usersCollectionRef = collection(db, 'reviews');
+  const tagsCollectionRef = collection(db, 'tags');
   const tags = useSelector(state => state.tags.tags);
-  const sortBy = useSelector(state => state.review.sortBy)
-  const sortOrder = useSelector(state => state.review.sortOrder)
+  const sortBy = useSelector(state => state.userMy.sortBy)
+  const sortOrder = useSelector(state => state.userMy.sortOrder)
 
-  const q = query(reviewsCollectionRef, where('userid', "==", userId), orderBy(sortBy, sortOrder));
+  const q = query(usersCollectionRef, orderBy(sortBy, sortOrder));
 
   useEffect(() => {
-    const getReviews = async () => {
+    const getUsers = async () => {
       const data = await getDocs(q);
-      dispatch(setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
+        dispatch(setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))));
     };
-    getReviews();
+    getUsers();
   }, [sortBy, sortOrder]);
+
+
+  deleteUser(user).then(() => {
+    // User deleted.
+  }).catch((error) => {
+    // An error ocurred
+    // ...
+  });
 
   const handleViewReviewPage = async (id) => {
     const docRef = doc(db, "reviews", id);
@@ -57,7 +68,7 @@ const MyPage = () => {
 
   const handleEditTagRemoveCount = async (id, count) => {
     const tagDoc = doc(db, "tags", id);
-    const newFields = {count: count - 1};
+    const newFields = { count: count - 1 };
     await updateDoc(tagDoc, newFields);
     dispatch(setTagCount(id, newFields));
   };
@@ -89,32 +100,25 @@ const MyPage = () => {
     <Container className='d-flex flex-column justify-content-center align-items-center'>
       <Row>
         <Col style={{textAlign: 'center'}} className='m-1'>
-          <h1><FormattedMessage id='my_page'/></h1>
-        </Col>
-      </Row>
-      <Row>
-        <Col style={{textAlign: 'center'}} className='m-1'>
-          <Button variant="outline-primary"
-                  onClick={changeAddReviewPage}><FormattedMessage id='add_review'/></Button>
+          <h1><FormattedMessage id='admin_page'/></h1>
         </Col>
       </Row>
       <Row style={{width: '100%'}}>
         <Table responsive="md" hover style={{textAlign: 'center'}}>
           <thead>
           <tr>
-            <th style={{cursor: 'pointer'}} onClick={() => handleSortBy('reviewname')}>
-              <FormattedMessage id='name_review'/></th>
-            <th style={{cursor: 'pointer'}} onClick={() => handleSortBy('createdAt')}>
-              <FormattedMessage id='date'/></th>
-            <th style={{cursor: 'pointer'}} onClick={() => handleSortBy('category')}>
-              <FormattedMessage id='category'/></th>
-            <th><FormattedMessage id='edit'/></th>
+            <th style={{cursor: 'pointer'}} onClick={() => handleSortBy('reviewname')}><FormattedMessage id='id_user'/></th>
+            <th style={{cursor: 'pointer'}} onClick={() => handleSortBy('createdAt')}><FormattedMessage id='name_user'/></th>
+            <th style={{cursor: 'pointer'}} onClick={() => handleSortBy('category')}><FormattedMessage id='last_autoris'/></th>
+            <th><FormattedMessage id='block'/></th>
             <th><FormattedMessage id='del'/></th>
             <th><FormattedMessage id='View'/></th>
+            <th><FormattedMessage id='change_role'/></th>
           </tr>
           </thead>
           <tbody>
           {reviews.map((review) => {
+
             if (review.createdAt) {
               const dateAt = review.createdAt.seconds;
               let unix_timestamp = dateAt;
@@ -149,13 +153,8 @@ const MyPage = () => {
           </tbody>
         </Table>
       </Row>
-      <Button variant={"outline-primary"}
-              className='m-2'
-              onClick={() => navigate(CATEGORIES_ROUTE)}>
-        <FormattedMessage id='add_category'/>
-      </Button>
     </Container>
   );
 };
 
-export default MyPage;
+export default AdminPage;

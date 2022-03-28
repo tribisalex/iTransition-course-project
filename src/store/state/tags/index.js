@@ -13,7 +13,6 @@ const initState = {
 
 const tagReducer = (state = initState, action) => {
   switch (action.type) {
-
     case GET_TAGS:
       return {...state, tags: action.tags }
 
@@ -22,7 +21,6 @@ const tagReducer = (state = initState, action) => {
         ...state.tags,
           action.tag
         ]}
-
 
     case SET_TAG_COUNT:
       return {...state, tags: state.tags.map((tag) => tag.id === action.id ? {...tag, count: action.count} : tag) }

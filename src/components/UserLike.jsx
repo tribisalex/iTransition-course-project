@@ -1,11 +1,11 @@
 import React from 'react';
 
-const Courusel = () => {
+const UserLike = () => {
   return (
     <div>
-      
+
     </div>
   );
 };
 
-export default Courusel;
+export default UserLike;

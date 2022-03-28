@@ -1,24 +1,31 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {Col, Container, Row} from "react-bootstrap";
 import SideBar from "../components/SideBar";
 import CategoryReviews from "../components/CategoryReviews";
 import {collection, doc, getDoc, getDocs, orderBy, query, where} from "firebase/firestore";
 import {db} from "../firebase";
-import {Link} from "react-router-dom";
-import StarRatings from "react-star-ratings";
+import {useNavigate} from "react-router-dom";
 import TagsCloud from "../components/TagsCloud";
-import {filterReview, setCategoryName, setReview, setReviews} from "../store/state/reviews/actions";
+import {
+  setCategoryName,
+  setReview, setReviewId,
+  setReviews, setTag
+} from "../store/state/reviews/actions";
 import {useDispatch, useSelector} from "react-redux";
-import {setCategories} from "../store/state/category/actions";
+import {REVIEW_ROUTE} from "../utils/const";
+import UserRating from "../components/UserRating";
 
 const HomePage = () => {
-  const reviews = useSelector(state => state.review.reviews)
+  const reviews = useSelector(state => state.review.reviews);
+  const tag = useSelector(state => state.review.tag);
   const categoryName = useSelector(state => state.review.categoryName);
+  const reviewId = useSelector(state => state.review.reviewId);
   const reviewsCollectionRef = collection(db, 'reviews');
   const q1 = query(reviewsCollectionRef, orderBy('createdAt', 'desc'));
   const q2 = query(reviewsCollectionRef, where('category', "==", categoryName), orderBy('createdAt', 'desc'));
-  const [starRating, setStarRating] = useState();
+  const q3 = query(reviewsCollectionRef, where('tags.value', "array-contains", tag), orderBy('createdAt', 'desc'));
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getReviews = async () => {
@@ -28,78 +35,70 @@ const HomePage = () => {
     getReviews();
   }, []);
 
-  useEffect(() => {
-    const getReviews = async () => {
-      const data = await getDocs(q2);
-      dispatch (setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
-    };
-    getReviews();
-  }, [categoryName]);
-
   // useEffect(() => {
   //   const getReviews = async () => {
-  //     const data = await getDocs(q1);
-  //     setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
+  //     const data = await getDocs(q3);
+  //     dispatch (setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
   //   };
   //   getReviews();
-  // }, []);
-  //
-  // useEffect(() => {
-  //   const getReviews = async () => {
-  //     const data = await getDocs(q2);
-  //     setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
-  //   };
-  //   getReviews();
-  // }, [categoryName]);
+  // }, [tag]);
 
   const handleViewReviewPage = async (id) => {
     const docRef = doc(db, "reviews", id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       dispatch(setReview(docSnap.data()));
+      dispatch(setReviewId(id));
+      console.log(reviewId);
     } else {
       console.log("No such document!");
     }
+    navigate(REVIEW_ROUTE);
   }
 
   const handleClickCategory = (category) => {
-    dispatch(setCategoryName(category))
+    dispatch(setCategoryName(category));
+    const getReviews = async () => {
+      const data = await getDocs(q2);
+      dispatch (setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
+    };
+    getReviews();
+  }
+
+  const handleClickTag = (tag) => {
+    dispatch(setTag(tag));
   }
 
   return (
-    <Container style={{width: '100%'}}>
-      <Row>
-        <Col sm style={{border: '2px solid red'}}>
+    <Container>
+      <Row lg={12}>
+        <Col style={{backgroundColor: '#ffaf00', color: 'white'}}>
           <CategoryReviews handleClickCategory={handleClickCategory}/>
         </Col>
       </Row>
-      <Row className='d-flex justify-content-center align-items-center'>
-        <Col sm  style={{border: '2px solid green', textAlign: 'center'}}><TagsCloud/></Col>
+      <Row lg={12} className='d-flex justify-content-center align-items-center'>
+        <Col sm  style={{backgroundColor: '#ffffff', textAlign: 'center'}}><TagsCloud handleClickTag={handleClickTag}/></Col>
       </Row>
-      <Row>
-        <Col xs={12} md={10}
-             style={{border: '2px solid yellow'}}
-             className='d-flex flex-row flex-wrap justify-content-around'>
+      <Row lg={12} style={{}} className='d-flex'>
+        <Col xs={12} md={8}  lg={8}
+             className='d-flex flex-row flex-wrap align-self-start justify-content-center align-items-start'>
           {reviews.map((review, key) => {
             return (
-              <Link key={key} to={`review`} style={{textDecoration: 'none', color: 'black'}}>
               <div onClick={() => handleViewReviewPage(review.id)}
-                   className='p-3'
-                   style={{textAlign: 'center'}}>
-                <img src={review.imageurl} alt='review' style={{width: 200}}/>
-                <h3>{review.reviewname}</h3>
-                <StarRatings
-                rating={Number(review.rating)}
-                starRatedColor='blue'
-                numberOfStars={5}
-                name='rating'
-                />
+                   className='d-flex flex-column justify-content-start align-items-center mb-3'
+                   style={{textAlign: 'center', cursor: 'pointer'}}>
+                <img src={review.imageurl} alt='review' className='w-75' style={{borderRadius: '8px'}}/>
+                <div className='d-flex align-items-center' style={{}}>
+                  <div className='me-2' style={{fontSize: '18px', fontWeight: 'bolder'}}>{review.reviewname}</div>
+                  <UserRating userRating={review.userRatingCount}/>
+                </div>
               </div>
-              </Link>
-            );
+             );
           })}
         </Col>
-        <Col xs={4} md={2}  style={{backgroundColor: 'pink', border: '2px solid blue'}}><SideBar/></Col>
+        <Col xs={12} md={4} lg={4} style={{backgroundColor: '#ffaf00'}}>
+          <SideBar/>
+        </Col>
       </Row>
     </Container>
   )

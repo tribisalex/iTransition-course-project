@@ -11,10 +11,10 @@ import {addReview, editReview, setReview, setReviewId} from '../store/state/revi
 import {useDispatch, useSelector} from "react-redux";
 import {setCategories} from "../store/state/category/actions";
 import {FormattedMessage} from "react-intl";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import {CKEditor} from "@ckeditor/ckeditor5-react";
 import {MultiSelect} from "react-multi-select-component";
 import {addTag, setTagCount, setTags} from "../store/state/tags/actions";
+import ReactMarkdown from "react-markdown";
+
 
 const AddReviewPage1 = () => {
   const navigate = useNavigate();
@@ -109,7 +109,6 @@ const AddReviewPage1 = () => {
     }
   }, []);
 
-
   const handleAddReview = async () => {
     await addDoc(reviewsCollectionRef, {
       userid: user.uid,
@@ -118,8 +117,9 @@ const AddReviewPage1 = () => {
       imageurl: downloadUrl,
       category: category,
       reviewtext: reviewText,
-      rating: rating,
+      rating: Number(rating),
       createdAt: serverTimestamp(),
+      userRatingCount: 0
     });
     dispatch(addReview({
       userid: user.uid,
@@ -128,8 +128,9 @@ const AddReviewPage1 = () => {
       imageurl: downloadUrl,
       category: category,
       reviewtext: reviewText,
-      rating: rating,
-      createdAt: serverTimestamp()
+      rating: Number(rating),
+      createdAt: serverTimestamp(),
+      userRatingCount: 0
     }));
     selected.map((select) => handleEditTagAddCount(select.id, select.count));
     navigate(MYPAGE_ROUTE);
@@ -146,7 +147,7 @@ const AddReviewPage1 = () => {
       reviewtext: reviewText,
       rating: Number(rating),
     });
-    dispatch(editReview(id, name, tags, downloadUrl, category, reviewText, rating));
+    dispatch(editReview(id, name, tags, downloadUrl, category, reviewText, Number(rating)));
     dispatch(setReviewId(''));
     navigate(MYPAGE_ROUTE)
   }
@@ -212,8 +213,7 @@ const AddReviewPage1 = () => {
     );
   }
 
-  const ratingItems = [1, 2, 3, 4, 5]
-
+  const ratingItems = [1, 2, 3, 4, 5];
 
   return (
     <Container className='mt-2 d-flex flex-column justify-content-center align-items-center'
@@ -272,20 +272,23 @@ const AddReviewPage1 = () => {
               onChange={(e) => setName(e.target.value)}
             />
           </FloatingLabel>
-          <div className='d-flex mt-2 mb-2' style={{width: '100%'}}>
-            <FloatingLabel style={{width: '85%'}} controlId="floatingInput" label="New tag">
-              <Form.Control
-                placeholder='New tag'
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-              />
+
+          <div className='d-flex justify-content-center align-items-center mt-2 mb-2' style={{width: '100%'}}>
+
+            <FloatingLabel className='me-2'
+                           controlId="floatingInput"
+                           style={{width: '80%'}}
+                           label="New tag"><Form.Control placeholder='New tag' value={newTagName} onChange={(e) => setNewTagName(e.target.value)}/>
             </FloatingLabel>
             <Button variant={"outline-primary"}
-                    className='m-2'
-                    onClick={handleAddTags}>Add tag</Button>
+                    style={{width: '20%'}}
+                    className=''
+                    onClick={handleAddTags}><FormattedMessage id='add_tag'/>
+            </Button>
           </div>
+
           <div>
-            <FloatingLabel>Select tags</FloatingLabel>
+            <FloatingLabel><FormattedMessage id='select_tags'/></FloatingLabel>
             <MultiSelect
               options={tags}
               value={selected}
@@ -293,7 +296,6 @@ const AddReviewPage1 = () => {
               labelledBy="Select tags"
             />
           </div>
-
 
           <Form.Select className='mt-2'
                        aria-label="select"
@@ -319,13 +321,25 @@ const AddReviewPage1 = () => {
             })}
           </Form.Select>
 
-          <CKEditor
-            editor={ClassicEditor}
-            onInit={editor => {
-            }}
-            value={reviewText}
-            onChange={handleCkeditorChange}
-          />
+          {/*<CKEditor*/}
+          {/*  editor={ClassicEditor}*/}
+          {/*  onInit={editor => {*/}
+          {/*  }}*/}
+          {/*  value={reviewText}*/}
+          {/*  onChange={handleCkeditorChange}*/}
+          {/*/>*/}
+
+          <FloatingLabel controlId="floatingInput" label="Text review">
+            <Form.Control as="textarea"
+                          rows={6}
+                          placeholder='Text review'
+                          value={reviewText}
+                          onChange={(e) => setReviewText(e.target.value)}/>
+          </FloatingLabel>
+          <ReactMarkdown style={{width: '400px', height: '150px'}} source={reviewText}/>
+
+          {/*<textarea id="editor" data-preview="#preview"></textarea>*/}
+          {/*<div id="preview"></div>*/}
 
           <Button variant={"outline-primary"} className='mt-2'
                   onClick={reviewId

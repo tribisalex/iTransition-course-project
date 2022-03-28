@@ -5,11 +5,13 @@ import categoryReducer from "./category";
 import userReducer from "../slices/userSlice";
 import usersReducer from "./users";
 import tagReducer from "./tags";
+import commentsReducer from "./comments";
 
 const reducers = combineReducers({
     review: reviewReducer,
     category: categoryReducer,
     tags: tagReducer,
+    comments: commentsReducer,
     form: formReducer,
     user: userReducer,
     userMy: usersReducer

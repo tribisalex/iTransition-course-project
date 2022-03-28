@@ -5,16 +5,15 @@ import {db} from "../firebase";
 import {useDispatch, useSelector} from "react-redux";
 import {setTags} from "../store/state/tags/actions";
 
-const TagsCloud = () => {
+const TagsCloud = ({handleClickTag}) => {
   const tagsCollectionRef = collection(db, "tags");
   const tags = useSelector(state => state.tags.tags)
+  const dispatch = useDispatch();
 
   const dataTags = [];
   tags.map((tag) => {
     dataTags.push({value: tag.value, count: tag.count})
   })
-
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const getTags = async () => {
@@ -24,13 +23,14 @@ const TagsCloud = () => {
     getTags();
   }, []);
 
-return (
-  <TagCloud
-    minSize={14}
-    maxSize={35}
-    tags={dataTags}
-    onClick={tag => alert(`'${tag.value}' was selected!`)}
-  />
-)
+  return (
+    <TagCloud
+      style={{cursor: 'pointer'}}
+      minSize={14}
+      maxSize={35}
+      tags={dataTags}
+      onClick={tag => handleClickTag(tag.value)}
+    />
+  )
 }
 export default TagsCloud;

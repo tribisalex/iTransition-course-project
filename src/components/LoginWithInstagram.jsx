@@ -29,7 +29,6 @@ const LoginWithInstagram = () => {
     res.redirect(redirectUri);
   });
 
-
   function onSignInButtonClick() {
     window.open('/redirect', 'firebaseAuth', 'высота = 315, ширина = 400');
   };

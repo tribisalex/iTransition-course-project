@@ -1,44 +1,68 @@
 import React, {useEffect, useState} from 'react';
 import {Col, Container, Row} from "react-bootstrap";
-import {Link} from "react-router-dom";
-import StarRatings from "react-star-ratings";
+import {Link, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {collection, getDocs, orderBy, query, where} from "firebase/firestore";
+import {collection, doc, getDoc, getDocs, orderBy, query, where} from "firebase/firestore";
 import {db} from "../firebase";
-import {setReviews} from "../store/state/reviews/actions";
+import {setReview, setReviewId, setReviewsPopular} from "../store/state/reviews/actions";
+import {REVIEW_ROUTE} from "../utils/const";
+import UserRating from "./UserRating";
+import {FormattedMessage} from 'react-intl';
 
 const SideBar = () => {
-  const reviews = useSelector(state => state.review.reviews);
-  console.log('Sidebar Review: ', reviews)
+  const reviewsPopular = useSelector(state => state.review.reviewsPopular);
   const reviewsCollectionRef = collection(db, 'reviews');
-  const [starRating, setStarRating] = useState();
+  const q = query(reviewsCollectionRef, where('userRatingCount', ">=", 4), orderBy('userRatingCount', 'desc'));
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const getReviewsPopular = async () => {
+      const data = await getDocs(q);
+      dispatch (setReviewsPopular(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
+    };
+    getReviewsPopular();
+  }, []);
+
+  const handleViewReviewPage = async (id) => {
+    const docRef = doc(db, "reviews", id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      dispatch(setReview(docSnap.data()));
+      dispatch(setReviewId(id));
+    } else {
+      console.log("No such document!");
+    }
+    navigate(REVIEW_ROUTE);
+  }
 
   return (
-    <Container className='d-flex flex-column justify-content-center align-items-center' style={{}}>
-      <Row style={{textAlign: 'center'}}>
+    <Container className='d-flex flex-column justify-content-center align-items-center'>
+      <Row className='m-3' style={{textAlign: 'center'}}>
         <Col >
-          <h4>Popular reviews</h4>
+          <h4 style={{color: '#ffffff'}}><FormattedMessage id='popular_reviews'/></h4>
         </Col>
       </Row>
-
       <Row >
-        <Col xs={12} md={10}
-             style={{width: '100%'}}
-             className='d-flex flex-column justify-content-center'>
-          {reviews.map((review, key) => {
+        <Col className='d-flex flex-column justify-content-center'>
+          {reviewsPopular.map((review, key) => {
             return (
-              <Link key={key} to={`review`} style={{textDecoration: 'none', color: 'black'}} >
-                <div className='d-flex flex-column align-items-center' style={{}}>
-                  <img src={review.imageurl} alt='review' style={{width: 150}}/>
-                  <h4 style={{textAlign: 'center'}}>{review.reviewname}</h4>
+                <div key={key}
+                  onClick={() => handleViewReviewPage(review.id)}
+                     className='d-flex mb-3 flex-column align-items-center'
+                     style={{cursor: 'pointer', }}>
+                  <img src={review.imageurl}
+                       alt='review'
+                       style={{width: '100%', borderRadius: '5px'}}/>
+                  <div className='d-flex align-items-center'>
+                    <div style={{textAlign: 'center', fontSize: '18px', fontWeight: 'bolder', color: '#ffffff'}} className='me-2'>{review.reviewname} </div>
+                    <UserRating  userRating={review.userRatingCount}/>
+                  </div>
                 </div>
-              </Link>
             );
           })}
         </Col>
       </Row>
-
     </Container>
   );
 };

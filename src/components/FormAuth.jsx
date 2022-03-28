@@ -29,14 +29,16 @@ const FormAuth = ({title, handleClick, route, currentLocale, IsLogin}) => {
           className='mt-2'
           placeholder='Enter your email'
           value={email}
+          type="email"
+          required
           onChange={e => setEmail(e.target.value)}
         />
         <Form.Control
           className='mt-2'
           placeholder='Enter your password'
           value={pass}
+          type="password"
           onChange={e => setPass(e.target.value)}
-          type='password'
         />
         <Button variant={"outline-primary"} className='mt-2' onClick={() => handleClick(email, pass, name, currentLocale)}>{title}</Button>
         <div className='d-flex justify-content-center mt-2'>

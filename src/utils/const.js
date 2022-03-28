@@ -5,3 +5,4 @@ export const REGISTER_ROUTE='/register';
 export const REVIEW_ROUTE='/review';
 export const MYPAGE_ROUTE='/my-page';
 export const ADDREVIEWPAGE_ROUTE='/add-review';
+export const ADMIN_ROUTE='/admin';

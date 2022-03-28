@@ -6,7 +6,11 @@ import {
 } from "../../types";
 
 const initState = {
-  categories: [],
+  categories: [
+    {id: '0Zm7hNZBB6uLO1K2bw9b', categoryname: 'Book'},
+    {id: 'j3reZzW2nbUVMKNNrrSu', categoryname: 'Movies'},
+    {id: 'kXiwMtaOUqRvVVvnSWdn', categoryname: 'Music'},
+  ],
   sortBy: 'categoryname',
   sortOrder: 'desc'
 }

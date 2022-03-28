@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {Col, Container, Row} from "react-bootstrap";
 import {collection, getDocs, orderBy, query} from "firebase/firestore";
 import {db} from "../firebase";
-import {Link} from "react-router-dom";
 
 const CategoryReviews = ({handleClickCategory}) => {
   const [categories, setCategories] = useState([]);
@@ -21,8 +20,8 @@ const CategoryReviews = ({handleClickCategory}) => {
     <Container className='d-flex justify-content-center align-items-center'>
       <Row style={{width: '100%'}}>
         <Col className='d-flex flex-row justify-content-between' style={{width: '100%'}}>
-          {categories.map((category, key) => {
-            const categoryName = category.categoryname;
+          {
+            categories.map((category, key) => {
             return (
               <div key={key} style={{cursor: 'pointer', fontWeight: 'bold'}} onClick={() => handleClickCategory(category.categoryname)}>{category.categoryname}</div>
             );

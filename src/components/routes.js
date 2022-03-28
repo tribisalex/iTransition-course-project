@@ -1,5 +1,5 @@
 import {
-  ADDREVIEWPAGE_ROUTE, CATEGORIES_ROUTE,
+  ADDREVIEWPAGE_ROUTE, ADMIN_ROUTE, CATEGORIES_ROUTE,
   HOMEPAGE_ROUTE,
   LOGIN_ROUTE,
   MYPAGE_ROUTE,
@@ -14,6 +14,7 @@ import MyPage from "../pages/MyPage";
 import AddReviewPage from "../pages/AddReviewPage";
 import CategoriesPage from "../pages/CategoriesPage";
 import AddReviewPage1 from "../pages/AddReviewPage1";
+import AdminPage from "../pages/AdminPage";
 
 export const publicRoutes = [
   {
@@ -46,5 +47,9 @@ export const privateRoutes = [
   {
     path: ADDREVIEWPAGE_ROUTE,
     Element: AddReviewPage1
+  },
+  {
+    path: ADMIN_ROUTE,
+    Element: AdminPage
   },
 ]
