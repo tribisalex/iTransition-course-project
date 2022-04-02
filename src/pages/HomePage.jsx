@@ -11,44 +11,49 @@ import {
   setReview, setReviewId,
   setReviews, setTag
 } from "../store/state/reviews/actions";
-import {useDispatch, useSelector} from "react-redux";
+import {connect} from "react-redux";
 import {REVIEW_ROUTE} from "../utils/const";
 import UserRating from "../components/UserRating";
 
-const HomePage = () => {
-  const reviews = useSelector(state => state.review.reviews);
-  const tag = useSelector(state => state.review.tag);
-  const categoryName = useSelector(state => state.review.categoryName);
-  const reviewId = useSelector(state => state.review.reviewId);
+const mapStateToProps = (state) => (
+  {
+    reviews: state.review.reviews,
+    categoryName: state.review.categoryName,
+    tag: state.review.tag
+  }
+)
+
+const mapDispatchToProps = (dispatch) => (
+  {
+    setReviews: (reviews) => dispatch(setReviews(reviews)),
+    setReview: (review) => dispatch(setReview(review)),
+    setReviewId: (reviewId) => dispatch(setReviewId(reviewId)),
+    setCategoryName: (categoryName) => dispatch(setCategoryName(categoryName)),
+    setTag: (tag) => dispatch(setTag(tag))
+  }
+)
+
+const HomePage = ({reviews, categoryName, tag, setReviews, setReview, setReviewId, setCategoryName, setTag}) => {
   const reviewsCollectionRef = collection(db, 'reviews');
   const q1 = query(reviewsCollectionRef, orderBy('createdAt', 'desc'));
   const q2 = query(reviewsCollectionRef, where('category', "==", categoryName), orderBy('createdAt', 'desc'));
   const q3 = query(reviewsCollectionRef, where('tags.value', "array-contains", tag), orderBy('createdAt', 'desc'));
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     const getReviews = async () => {
       const data = await getDocs(q1);
-      dispatch (setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
+      setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
     };
     getReviews();
   }, []);
-
-  // useEffect(() => {
-  //   const getReviews = async () => {
-  //     const data = await getDocs(q3);
-  //     dispatch (setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
-  //   };
-  //   getReviews();
-  // }, [tag]);
 
   const handleViewReviewPage = async (id) => {
     const docRef = doc(db, "reviews", id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      dispatch(setReview(docSnap.data()));
-      dispatch(setReviewId(id));
+      setReview(docSnap.data());
+      setReviewId(id);
     } else {
       console.log("No such document!");
     }
@@ -56,16 +61,16 @@ const HomePage = () => {
   }
 
   const handleClickCategory = (category) => {
-    dispatch(setCategoryName(category));
+    setCategoryName(category);
     const getReviews = async () => {
       const data = await getDocs(q2);
-      dispatch (setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id}))));
+      setReviews(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
     };
     getReviews();
   }
 
   const handleClickTag = (tag) => {
-    dispatch(setTag(tag));
+    setTag(tag);
   }
 
   return (
@@ -103,4 +108,4 @@ const HomePage = () => {
   )
 };
 
-export default HomePage;
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage);

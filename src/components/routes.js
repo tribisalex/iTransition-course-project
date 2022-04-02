@@ -15,6 +15,7 @@ import AddReviewPage from "../pages/AddReviewPage";
 import CategoriesPage from "../pages/CategoriesPage";
 import AddReviewPage1 from "../pages/AddReviewPage1";
 import AdminPage from "../pages/AdminPage";
+import ReviewPage1 from "../pages/ReviewPage1";
 
 export const publicRoutes = [
   {
@@ -31,7 +32,7 @@ export const publicRoutes = [
   },
   {
     path: REVIEW_ROUTE,
-    Element: ReviewPage
+    Element: ReviewPage1
   }
 ]
 

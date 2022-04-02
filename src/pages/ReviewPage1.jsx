@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Card, Col, Container, Form, Row} from "react-bootstrap";
-import {useDispatch, useSelector} from "react-redux";
+import {connect} from "react-redux";
 import UserRating from "../components/UserRating";
 import CommentsForm from "../components/comments/CommentsForm";
 import {useAuth} from "../hooks/use-auth";
@@ -13,14 +13,24 @@ import {db} from "../firebase";
 import {getAuth} from "firebase/auth";
 import {editUserRatingCount} from "../store/state/reviews/actions";
 
-const ReviewPage = () => {
+const mapStateToProps = (state) => (
+  {
+    review: state.review.review,
+    reviewId: state.review.reviewId
+  }
+)
+
+const mapDispatchToProps = (dispatch) => (
+  {
+    editUserRatingCount: (id, Number) => dispatch(editUserRatingCount(id, Number))
+  }
+)
+
+const ReviewPage = ({review, reviewId, editUserRatingCount}) => {
   const {isAuth} = useAuth();
   const auth = getAuth();
   const userId = auth.currentUser.uid;
   const [userRatingNew, setUserRatingNew] = useState();
-  const dispatch = useDispatch();
-  const review = useSelector(state => state.review.review);
-  const reviewId = useSelector(state => state.review.reviewId);
 
   if (review.createdAt) {
     const dateAt = review.createdAt.seconds;
@@ -38,7 +48,7 @@ const ReviewPage = () => {
     const reviewDoc = doc(db, 'reviews', id);
     const newUserRating = { userRatingCount: userRatingSet};
     await updateDoc(reviewDoc, newUserRating);
-    dispatch(editUserRatingCount(id, Number(userRatingSet)));
+    editUserRatingCount(id, Number(userRatingSet));
     setUserRatingNew(0);
   }
 
@@ -137,4 +147,4 @@ const ReviewPage = () => {
   );
 };
 
-export default ReviewPage;
+export default connect(mapStateToProps, mapDispatchToProps)(ReviewPage);
